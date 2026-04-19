@@ -1,74 +1,82 @@
-## Guide Complet — Capstone Judging App
+# Capstone Judging App
+
+<p align="center">
+  <img src="Al_Akhawayn_University_Logo.png" alt="Al Akhawayn University" width="200"/>
+</p>
+
+<p align="center">
+  <strong>Al Akhawayn University — Capstone Final Competition 2026</strong><br/>
+  Judging platform for evaluating capstone projects across 3 competition days.
+</p>
 
 ---
 
-### Prérequis
+## Overview
 
-- **Python 3.10+** → [python.org/downloads](https://www.python.org/downloads/)
-- **Node.js 18+** → [nodejs.org](https://nodejs.org/)
-- **MongoDB** → [mongodb.com/try/download/community](https://www.mongodb.com/try/download/community)
+A full-stack web application that allows **judges** to evaluate capstone teams and **admins** to manage the competition. Built with **Flask** (backend) and **React** (frontend).
 
----
+### Features
 
-### requirements.txt
-
-```
-bcrypt==5.0.0
-blinker==1.9.0
-click==8.3.2
-colorama==0.4.6
-dnspython==2.8.0
-Flask==3.1.3
-flask-cors==6.0.2
-Flask-JWT-Extended==4.7.1
-itsdangerous==2.2.0
-Jinja2==3.1.6
-MarkupSafe==3.0.3
-marshmallow==4.3.0
-PyJWT==2.12.1
-pymongo==4.16.0
-python-dotenv==1.2.2
-Werkzeug==3.1.8
-```
-
-Msa7t `Flask-PyMongo` hit ma-kaynستعملوهش, kaynستعملو `pymongo` directement.
+- JWT-based authentication (6 judges + 1 admin)
+- 36 teams across 3 competition days (April 11, 12, 13)
+- 7 scoring criteria (0–20 scale) with visual validation
+- Circular countdown timer with 1-minute sound alert
+- Report viewer (Google Drive links)
+- Duplicate submission protection
+- Judge progress tracker
+- Search & filter by date
+- Export rankings to Excel (3 sheets) or CSV
+- Print-friendly ranking page
+- Automatic tie-break logic
+- Session expiry with auto-redirect
+- Toast notifications & confirmation modals
+- Fully responsive (mobile + desktop) with hamburger menu
 
 ---
 
-### Etape 1 — MongoDB
+## Prerequisites
 
-Installi MongoDB, assuri kaykhdem:
+| Tool | Version | Download |
+|------|---------|----------|
+| Python | 3.10+ | [python.org/downloads](https://www.python.org/downloads/) |
+| Node.js | 18+ | [nodejs.org](https://nodejs.org/) |
+| MongoDB | Latest | [mongodb.com/try/download/community](https://www.mongodb.com/try/download/community) |
 
-```powershell
+---
+
+## Quick Start (Build Mode — Single Server)
+
+This method serves everything from Flask on **port 5000 only**. Ideal for running on a local network.
+
+### 1. Start MongoDB
+
+```bash
 mongosh
 ```
 
-Ila ma khdmch:
+If MongoDB isn't running:
 
-```powershell
+```bash
 net start MongoDB
 ```
 
----
+### 2. Setup Backend
 
-### Etape 2 — Backend
-
-```powershell
-cd capstone-judging\backend
+```bash
+cd capstone-judging/backend
 python -m venv venv
 venv\Scripts\activate
-pip install -r ..\requirements.txt
+pip install -r requirements.txt
 ```
 
----
+### 3. Seed the Database
 
-### Etape 3 — Seed
-
-```powershell
+```bash
 python seed.py
+python seed1.py
 ```
 
-Khass yban:
+Expected output:
 
 ```
 === Seed done ===
@@ -80,65 +88,86 @@ Teams: 36 created
   April 13: 10 teams
 ```
 
----
+### 4. Find Your IP
 
-### Etape 4 — Changer l'IP
-
-```powershell
+```bash
 ipconfig
 ```
 
-Chof **IPv4 Address** (mثلا `192.168.1.55`).
+Look for the **Wi-Fi adapter → IPv4 Address** (e.g. `192.168.1.55`). Ignore VirtualBox or Ethernet IPs.
 
-Ouvri `frontend/src/api/axios.js`, bdl:
+### 5. Set the API URL
 
-```javascript
-baseURL: "http://TON_IP_ICI:5000/api",
+Open `frontend/src/api/axios.js` and set:
+
+```js
+const API = axios.create({
+  baseURL: `http://${window.location.hostname}:5000/api`,
+});
 ```
 
----
+> This makes the app work on any device automatically — no need to hardcode an IP.
 
-### Etape 5 — Frontend
+### 6. Build the Frontend
 
-```powershell
-cd capstone-judging\frontend
+```bash
+cd capstone-judging/frontend
 npm install
-npm install axios react-router-dom@6 lucide-react xlsx file-saver
-npm install -D tailwindcss@3 postcss autoprefixer
+npm run build
 ```
+
+Then copy the `build/` folder into the backend:
+
+```bash
+xcopy /E /I .\build ..\backend\build
+```
+
+### 7. Run the App
+
+```bash
+cd capstone-judging/backend
+venv\Scripts\activate
+python app.py
+```
+
+### 8. Open the App
+
+| Device | URL |
+|--------|-----|
+| Your PC | `http://localhost:5000` |
+| Other devices (same Wi-Fi) | `http://YOUR_IP:5000` |
 
 ---
 
-### Etape 6 — Lancer
+## Quick Start (Dev Mode — Two Servers)
+
+For development with hot-reload.
 
 **Terminal 1 — Backend:**
 
-```powershell
-cd backend
+```bash
+cd capstone-judging/backend
 venv\Scripts\activate
 python app.py
 ```
 
 **Terminal 2 — Frontend:**
 
-```powershell
-cd frontend
+```bash
+cd capstone-judging/frontend
+set HOST=0.0.0.0
 npm start
 ```
 
----
-
-### Etape 7 — Ouvrir l'app
-
-- **Local**: `http://localhost:3000`
-- **Téléphone / autre PC** (même WiFi): `http://TON_IP:3000`
+- Local: `http://localhost:3000`
+- Network: `http://YOUR_IP:3000`
 
 ---
 
-### Comptes
+## Default Accounts
 
 | Role | Email | Code |
-|---|---|---|
+|------|-------|------|
 | Admin | admin@capstone.ma | ADMIN2026 |
 | Judge 1 | judge1@capstone.ma | JUDGE01 |
 | Judge 2 | judge2@capstone.ma | JUDGE02 |
@@ -149,102 +178,102 @@ npm start
 
 ---
 
-### Architecture Backend
+## Firewall (Network Access)
 
-```
-backend/
-├── app.py                    ← Flask + MongoDB connection
-├── seed.py                   ← Script pour remplir la base
-├── models/
-│   ├── database.py           ← MongoDB connection singleton
-│   ├── user.py               ← User (Admin + Judge)
-│   ├── team.py               ← Team CRUD
-│   └── score.py              ← Score + criteria
-├── routes/
-│   ├── auth.py               ← Login + list judges
-│   ├── teams.py              ← CRUD teams
-│   ├── scores.py             ← Submit + read scores
-│   ├── ranking.py            ← Classement + tie-break
-│   └── dashboard.py          ← Stats admin
-├── middleware/
-│   └── auth_middleware.py    ← JWT + role guard
-└── utils/
-    └── tiebreak.py           ← Tie-break logic
+If other devices can't connect, open port 5000 in Windows Firewall.
+
+**PowerShell (Admin):**
+
+```powershell
+netsh advfirewall firewall add rule name=Flask5000 dir=in action=allow protocol=TCP localport=5000
 ```
 
-### Architecture Frontend
+Or manually: **Windows Settings → Windows Security → Firewall → Turn off for Private network.**
+
+---
+
+## Project Structure
 
 ```
-frontend/src/
-├── api/
-│   └── axios.js              ← API config + interceptors
-├── context/
-│   └── AuthContext.jsx        ← Auth state management
-├── components/
-│   ├── Navbar.jsx             ← Responsive nav + hamburger
-│   ├── ProtectedRoute.jsx     ← Route guard par role
-│   ├── ScoreForm.jsx          ← 7 criteria + validation
-│   ├── TeamCard.jsx           ← Card team + status
-│   ├── CountdownTimer.jsx     ← Circular clock + alerts
-│   ├── ReportViewer.jsx       ← Report link viewer
-│   ├── Modal.jsx              ← Confirmation modal
-│   ├── Toast.jsx              ← Notifications
-│   └── JudgeProgress.jsx      ← Progress bar judge
-├── pages/
-│   ├── Login.jsx
-│   ├── judge/
-│   │   ├── Agenda.jsx         ← Teams list + filter par date
-│   │   ├── TeamEval.jsx       ← Timer + report + score form
-│   │   └── MyScores.jsx       ← Historique scores
-│   └── admin/
-│       ├── Dashboard.jsx      ← Stats + missing evaluations
-│       ├── Ranking.jsx        ← Classement + export Excel/CSV
-│       ├── ManageTeams.jsx    ← CRUD + search + filter
-│       └── ManageJudges.jsx   ← Liste jury
-├── assets/
-│   └── logo/
-│       └── logo.png           ← Logo Al Akhawayn
-└── App.jsx                    ← Routes
+capstone-judging/
+├── backend/
+│   ├── app.py                    # Flask app + serves React build
+│   ├── seed.py                   # Database seeder
+│   ├── requirements.txt
+│   ├── models/
+│   │   ├── database.py           # MongoDB connection
+│   │   ├── user.py               # User model (Admin + Judge)
+│   │   ├── team.py               # Team CRUD
+│   │   └── score.py              # Score + criteria
+│   ├── routes/
+│   │   ├── auth.py               # Login + judge list
+│   │   ├── teams.py              # Team CRUD endpoints
+│   │   ├── scores.py             # Submit + read scores
+│   │   ├── ranking.py            # Rankings + tie-break
+│   │   └── dashboard.py          # Admin stats
+│   ├── middleware/
+│   │   └── auth_middleware.py    # JWT + role guard
+│   └── utils/
+│       └── tiebreak.py           # Tie-break logic
+│
+├── frontend/
+│   └── src/
+│       ├── api/
+│       │   └── axios.js          # API client + interceptors
+│       ├── context/
+│       │   └── AuthContext.jsx    # Auth state
+│       ├── components/
+│       │   ├── Navbar.jsx         # Responsive nav
+│       │   ├── ProtectedRoute.jsx # Role-based route guard
+│       │   ├── ScoreForm.jsx      # 7 criteria form
+│       │   ├── TeamCard.jsx       # Team card + status
+│       │   ├── CountdownTimer.jsx # Circular timer + alerts
+│       │   ├── ReportViewer.jsx   # Report link viewer
+│       │   ├── Modal.jsx          # Confirmation modal
+│       │   ├── Toast.jsx          # Notifications
+│       │   └── JudgeProgress.jsx  # Progress bar
+│       ├── pages/
+│       │   ├── Login.jsx
+│       │   ├── judge/
+│       │   │   ├── Agenda.jsx     # Teams list + date filter
+│       │   │   ├── TeamEval.jsx   # Timer + report + scoring
+│       │   │   └── MyScores.jsx   # Score history
+│       │   └── admin/
+│       │       ├── Dashboard.jsx  # Stats + missing evals
+│       │       ├── Ranking.jsx    # Rankings + export
+│       │       ├── ManageTeams.jsx# Team CRUD + search
+│       │       └── ManageJudges.jsx# Jury list
+│       └── App.jsx                # Routes
+│
+└── run_app.bat                    # Quick launcher
 ```
 
 ---
 
-### Fichiers importants à vérifier
+## Tech Stack
 
-| Fichier | Chnou tchecki |
-|---|---|
-| `frontend/src/api/axios.js` | IP dyalk f baseURL |
-| `frontend/tailwind.config.js` | Content path mzyan |
-| `frontend/src/index.css` | Tailwind imports + fonts |
-| `frontend/package.json` | `"start": "set HOST=0.0.0.0&&react-scripts start"` |
-| `backend/app.py` | `host="0.0.0.0"` f `app.run()` |
-| `backend/models/database.py` | MongoDB URI |
-
----
-
-### Si Firewall bloque
-
-Windows → Settings → Windows Security → Firewall → Turn off for Private network.
+| Layer | Technology |
+|-------|-----------|
+| Backend | Flask, Flask-JWT-Extended, Flask-CORS |
+| Database | MongoDB + PyMongo |
+| Frontend | React, Tailwind CSS, Lucide Icons |
+| Auth | JWT (JSON Web Tokens) |
+| Export | SheetJS (xlsx), FileSaver |
 
 ---
 
-### Features dyal l'app
+## Troubleshooting
 
-- Login b code (JWT)
-- 6 juges + 1 admin
-- 36 teams sur 3 jours
-- 7 critères de notation (0-20)
-- Circular countdown timer + sound alert (1 min)
-- Report viewer (Google Drive link)
-- Duplicate submission protection
-- Score validation visuelle (color coding)
-- Confirmation modal
-- Toast notifications
-- Session expiry auto-redirect
-- Judge progress tracker
-- Search + filter par date
-- Export Excel (3 sheets) + CSV
-- Print-friendly ranking
-- Tie-break automatique
-- Responsive (mobile + desktop)
-- Hamburger menu mobile
+| Problem | Solution |
+|---------|----------|
+| `404` on `localhost:5000` | Build folder missing — run `npm run build` and copy to `backend/` |
+| Other devices can't connect | Open port 5000 in firewall or disable firewall for private network |
+| API errors from other devices | Make sure `axios.js` uses `window.location.hostname` not `localhost` |
+| MongoDB not running | Run `net start MongoDB` |
+| Wrong IP | Run `ipconfig` — use the Wi-Fi adapter IP, not VirtualBox |
+
+---
+
+## License
+
+This project was built for Al Akhawayn University's Capstone Final Competition 2026.
